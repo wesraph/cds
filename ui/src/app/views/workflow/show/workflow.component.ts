@@ -202,7 +202,9 @@ export class WorkflowShowComponent {
 
     updateWorkflow(w: Workflow, modal?: ActiveModal<boolean, boolean, void>): void {
         this.loading = true;
-        this._workflowStore.updateWorkflow(this.project.key, w).pipe(
+        let workflow = Workflow.formatParametersForAPI(w);
+
+        this._workflowStore.updateWorkflow(this.project.key, workflow).pipe(
             finalize(() => this.loading = false),
             first()
           )

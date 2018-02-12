@@ -1,7 +1,7 @@
 import {Pipeline} from './pipeline.model';
 import {Application} from './application.model';
 import {Environment} from './environment.model';
-import {intersection} from 'lodash';
+import {intersection, cloneDeep} from 'lodash';
 import {Parameter} from './parameter.model';
 import {WorkflowHookModel} from './workflow.hook.model';
 import {GroupPermission} from './group.model';
@@ -370,6 +370,23 @@ export class Workflow {
         return workflow;
     }
 
+    static formatParametersForAPI(workflow: Workflow): Workflow {
+        let cpWorkflow = cloneDeep(workflow);
+        cpWorkflow.root = WorkflowNode.formatParametersForAPI(cpWorkflow.root);
+
+        if (Array.isArray(cpWorkflow.joins)) {
+            cpWorkflow.joins = cpWorkflow.joins.map((join) => {
+                join.triggers = join.triggers.map((trig) => {
+                    trig.workflow_dest_node = WorkflowNode.formatParametersForAPI(trig.workflow_dest_node);
+                    return trig;
+                });
+                return join;
+            });
+        }
+
+        return cpWorkflow;
+    }
+
     constructor() {
         this.root = new WorkflowNode();
     }
@@ -412,6 +429,18 @@ export class WorkflowNode {
     context: WorkflowNodeContext;
     hooks: Array<WorkflowNodeHook>;
     triggers: Array<WorkflowNodeTrigger>;
+
+    static formatParametersForAPI(workflowNode: WorkflowNode): WorkflowNode {
+        workflowNode.pipeline.parameters = Parameter.formatForAPI(workflowNode.pipeline.parameters);
+        if (Array.isArray(workflowNode.triggers)) {
+            workflowNode.triggers = workflowNode.triggers.map((trig) => {
+                trig.workflow_dest_node = this.formatParametersForAPI(trig.workflow_dest_node);
+                return trig;
+            });
+        }
+
+        return workflowNode;
+    }
 
     static removeNodeWithoutChild(parentNode: WorkflowNode, trigger: WorkflowNodeTrigger, id: number, triggerInd: number): WorkflowNode {
         if (trigger.workflow_dest_node.id === id) {
