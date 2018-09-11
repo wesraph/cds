@@ -33,21 +33,31 @@ parameters:
       Example : {{.cds.version}},latest
 requirements:
 - binary: docker
+- plugin: plugin-clair
 steps:
 - script:
   - '#!/bin/bash'
+  - set -e
+  - ""
   - IMG=`echo {{.imageName}}| tr '[:upper:]' '[:lower:]'`
   - GENTAG="cds{{.cds.version}}"
   - REGISTRY="{{.dockerRegistry}}"
   - USERNAME="{{.dockerRegistryUsername}}"
   - PASSWORD="{{.dockerRegistryPassword}}"
+  - ""
   - echo "Building ${REGISTRY}/${IMG}:${GENTAG}"
+  - ""
   - cd {{.dockerfileDirectory}}
   - docker build {{.dockerOpts}} -t ${REGISTRY}/${IMG}:${GENTAG} .
   - ""
   - IFS=', ' read -r -a tags <<< "{{.imageTag}}"
+  - ""
+  - IMG_PUSHED=''
+  - ""
   - for t in "${tags[@]}"; do
+  - ""
   - "\tset +e"
+  - ""
   - "\tif [[ ! -z \"${USERNAME}\" && ! -z \"${PASSWORD}\" && ! -z \"${REGISTRY}\" ]]; then"
   - "\t\techo \"Login to ${REGISTRY}\""
   - "\t\tdocker login -u ${USERNAME} -p ${PASSWORD} ${REGISTRY}"
@@ -56,8 +66,10 @@ steps:
   - "\tTAG=`echo ${t} | sed 's/\\///g'`"
   - "\tdocker tag ${REGISTRY}/${IMG}:${GENTAG} ${REGISTRY}/${IMG}:${TAG}"
   - ""
-  - 'echo "Pushing ${REGISTRY}/${IMG}:${TAG}"'
+  - "\techo \"Pushing ${REGISTRY}/${IMG}:${TAG}\""
+  - '    IMG_PUSHED="${REGISTRY}/${IMG}:${TAG}"'
   - "\tdocker push ${REGISTRY}/${IMG}:${TAG}"
+  - ""
   - "\tif [ $? -ne 0 ]; then"
   - "\t\tset -e"
   - "\t\techo \"/!\\ Error while pushing to repository. Automatic retry in 60s...\""
@@ -67,78 +79,26 @@ steps:
   - ""
   - "\tset -e"
   - "\techo \" ${REGISTRY}/${IMG}:${TAG} is pushed\""
+  - ""
   - "\t#docker rmi -f ${REGISTRY}/${IMG}:${TAG} || true;"
   - done
   - ""
   - IMAGE_ID=`docker images --digests --no-trunc --format "{{.Repository}}:{{.Tag}}
-    {{.ID}}" | grep "${REGISTRY}/${IMG}:${GENTAG}" | awk '{print $2}'`
+    {{.ID}}" | grep "${REGISTRY}/${IMG}:${GENTAG}" | awk '{print $2}' | head -n 1`
   - IMAGE_DIGEST=`docker images --digests --no-trunc --format "{{.Repository}}:{{.Tag}}
-    {{.Digest}}" | grep "${REGISTRY}/${IMG}:${GENTAG}" | awk '{print $2}'`
+    {{.Digest}}" | grep "${REGISTRY}/${IMG}:${GENTAG}" | awk '{print $2}' | head -n 1`
   - ""
   - echo "ID=$IMAGE_ID"
+  - echo "running worker export image.id ${IMAGE_ID}"
   - worker export image.id ${IMAGE_ID}
   - ""
   - echo "DIGEST=$IMAGE_DIGEST"
+  - echo "running worker export image.digest ${IMAGE_DIGEST}"
   - worker export image.digest ${IMAGE_DIGEST}
   - ""
+  - worker export image.pushed ${IMG_PUSHED}
+  - ""
   - '#docker rmi -f ${REGISTRY}/${IMG}:${GENTAG} || true;'
-- enabled: false
-  script:
-  - '#!/bin/sh'
-  - set -e
-  - ""
-  - IMG=`echo {{.imageName}}| tr '[:upper:]' '[:lower:]'`
-  - TAG=`echo {{.imageTag}} | sed 's/\///g'`
-  - echo "Building ${IMG}:${TAG}"
-  - ""
-  - cd {{.dockerfileDirectory}}
-  - docker build {{.dockerOpts}} -t {{.dockerRegistry}}/$IMG:$TAG .
-- enabled: false
-  script:
-  - '#!/bin/sh'
-  - ""
-  - IMG=`echo {{.imageName}}| tr '[:upper:]' '[:lower:]'`
-  - TAG=`echo {{.imageTag}} | sed 's/\///g'`
-  - ""
-  - echo "Pushing {{.dockerRegistry}}/$IMG:$TAG"
-  - docker push {{.dockerRegistry}}/$IMG:$TAG
-  - ""
-  - if [ $? -ne 0 ]; then
-  - "\tset -e"
-  - "\techo \"/!\\ Error while pushing to repository. Automatic retry in 60s...\""
-  - '    sleep 60'
-  - '    docker push {{.dockerRegistry}}/$IMG:$TAG'
-  - fi
-  - ""
-  - set -e
-  - echo " {{.dockerRegistry}}/$IMG:$TAG is pushed"
-  - ""
-  - docker rmi -f {{.dockerRegistry}}/$IMG:$TAG || true
-- enabled: false
-  script:
-  - '#!/bin/bash'
-  - ""
-  - IFS=', ' read -r -a tags <<< "{{.imageTag}}"
-  - ""
-  - for t in "${tags[@]}"; do
-  - ""
-  - "\tIMG=`echo {{.imageName}}| tr '[:upper:]' '[:lower:]'`"
-  - "\tTAG=`echo ${t} | sed 's/\\///g'`"
-  - ""
-  - "\techo \"Pushing {{.dockerRegistry}}/$IMG:$TAG\""
-  - "\tdocker push {{.dockerRegistry}}/$IMG:$TAG"
-  - ""
-  - "\tif [ $? -ne 0 ]; then"
-  - "\t\tset -e"
-  - "\t\techo \"/!\\ Error while pushing to repository. Automatic retry in 60s...\""
-  - "\t    sleep 60"
-  - "\t    docker push {{.dockerRegistry}}/$IMG:$TAG"
-  - "\tfi"
-  - ""
-  - "\tset -e"
-  - "\techo \" {{.dockerRegistry}}/$IMG:$TAG is pushed\""
-  - ""
-  - "\tdocker rmi -f {{.dockerRegistry}}/$IMG:$TAG || true;"
-  - ""
-  - done
-
+- optional: true
+  plugin-clair:
+    image: '{{.cds.build.image.pushed}}'
