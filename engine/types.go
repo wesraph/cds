@@ -17,6 +17,7 @@ import (
 	"github.com/ovh/cds/engine/hatchery/swarm"
 	"github.com/ovh/cds/engine/hatchery/vsphere"
 	"github.com/ovh/cds/engine/hooks"
+	"github.com/ovh/cds/engine/messenger"
 	"github.com/ovh/cds/engine/migrateservice"
 	"github.com/ovh/cds/engine/repositories"
 	"github.com/ovh/cds/engine/vcs"
@@ -41,6 +42,7 @@ type Configuration struct {
 	VCS             *vcs.Configuration            `toml:"vcs" comment:"######################\n CDS VCS Settings \n######################" json:"vcs"`
 	Repositories    *repositories.Configuration   `toml:"repositories" comment:"######################\n CDS Repositories Settings \n######################" json:"repositories"`
 	ElasticSearch   *elasticsearch.Configuration  `toml:"elasticsearch" comment:"######################\n CDS ElasticSearch Settings \n This is use for CDS timeline and is optional\n######################" json:"elasticsearch"`
+	Messenger       *messenger.Configuration      `toml:"messenger" comment:"######################\n CDS Messenger Settings \n This is use for send mail and notifications\n######################" json:"messenger"`
 	DatabaseMigrate *migrateservice.Configuration `toml:"databaseMigrate" comment:"######################\n CDS DB Migrate Service Settings \n######################" json:"databaseMigrate"`
 	Tracing         *observability.Configuration  `toml:"tracing" comment:"###########################\n CDS Tracing Settings \n##########################" json:"tracing"`
 }

@@ -20,6 +20,7 @@ import (
 	"github.com/ovh/cds/engine/hatchery/swarm"
 	"github.com/ovh/cds/engine/hatchery/vsphere"
 	"github.com/ovh/cds/engine/hooks"
+	"github.com/ovh/cds/engine/messenger"
 	"github.com/ovh/cds/engine/migrateservice"
 	"github.com/ovh/cds/engine/repositories"
 	"github.com/ovh/cds/engine/vcs"
@@ -38,6 +39,9 @@ func configSetDefaults() {
 	}
 	if conf.DatabaseMigrate != nil {
 		defaults.SetDefaults(conf.DatabaseMigrate)
+	}
+	if conf.ElasticSearch != nil {
+		defaults.SetDefaults(conf.ElasticSearch)
 	}
 	if conf.Hatchery != nil && conf.Hatchery.Local != nil {
 		defaults.SetDefaults(conf.Hatchery.Local)
@@ -60,14 +64,14 @@ func configSetDefaults() {
 	if conf.Hooks != nil {
 		defaults.SetDefaults(conf.Hooks)
 	}
-	if conf.VCS != nil {
-		defaults.SetDefaults(conf.VCS)
+	if conf.Messenger != nil {
+		defaults.SetDefaults(conf.Messenger)
 	}
 	if conf.Repositories != nil {
 		defaults.SetDefaults(conf.Repositories)
 	}
-	if conf.ElasticSearch != nil {
-		defaults.SetDefaults(conf.ElasticSearch)
+	if conf.VCS != nil {
+		defaults.SetDefaults(conf.VCS)
 	}
 }
 
@@ -87,9 +91,9 @@ func configBootstrap(args []string) {
 			if conf.API == nil {
 				conf.API = &api.Configuration{}
 			}
-		case "migrate":
-			if conf.DatabaseMigrate == nil {
-				conf.DatabaseMigrate = &migrateservice.Configuration{}
+		case "elasticsearch":
+			if conf.ElasticSearch == nil {
+				conf.ElasticSearch = &elasticsearch.Configuration{}
 			}
 		case "hatchery:local":
 			if conf.Hatchery.Local == nil {
@@ -119,17 +123,21 @@ func configBootstrap(args []string) {
 			if conf.Hooks == nil {
 				conf.Hooks = &hooks.Configuration{}
 			}
-		case "vcs":
-			if conf.VCS == nil {
-				conf.VCS = &vcs.Configuration{}
+		case "messenger":
+			if conf.Messenger == nil {
+				conf.Messenger = &messenger.Configuration{}
+			}
+		case "migrate":
+			if conf.DatabaseMigrate == nil {
+				conf.DatabaseMigrate = &migrateservice.Configuration{}
 			}
 		case "repositories":
 			if conf.Repositories == nil {
 				conf.Repositories = &repositories.Configuration{}
 			}
-		case "elasticsearch":
-			if conf.ElasticSearch == nil {
-				conf.ElasticSearch = &elasticsearch.Configuration{}
+		case "vcs":
+			if conf.VCS == nil {
+				conf.VCS = &vcs.Configuration{}
 			}
 		default:
 			fmt.Printf("Error: service '%s' unknown\n", a)
@@ -142,6 +150,7 @@ func configBootstrap(args []string) {
 		conf.Tracing = &observability.Configuration{}
 		conf.API = &api.Configuration{}
 		conf.DatabaseMigrate = &migrateservice.Configuration{}
+		conf.ElasticSearch = &elasticsearch.Configuration{}
 		conf.Hatchery = &HatcheryConfiguration{}
 		conf.Hatchery.Local = &local.HatcheryConfiguration{}
 		conf.Hatchery.Kubernetes = &kubernetes.HatcheryConfiguration{}
@@ -150,9 +159,9 @@ func configBootstrap(args []string) {
 		conf.Hatchery.Swarm = &swarm.HatcheryConfiguration{}
 		conf.Hatchery.VSphere = &vsphere.HatcheryConfiguration{}
 		conf.Hooks = &hooks.Configuration{}
-		conf.VCS = &vcs.Configuration{}
+		conf.Messenger = &messenger.Configuration{}
 		conf.Repositories = &repositories.Configuration{}
-		conf.ElasticSearch = &elasticsearch.Configuration{}
+		conf.VCS = &vcs.Configuration{}
 	}
 }
 

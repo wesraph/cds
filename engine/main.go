@@ -26,6 +26,7 @@ import (
 	"github.com/ovh/cds/engine/hatchery/swarm"
 	"github.com/ovh/cds/engine/hatchery/vsphere"
 	"github.com/ovh/cds/engine/hooks"
+	"github.com/ovh/cds/engine/messenger"
 	"github.com/ovh/cds/engine/migrateservice"
 	"github.com/ovh/cds/engine/repositories"
 	"github.com/ovh/cds/engine/service"
@@ -145,7 +146,7 @@ var configNewCmd = &cobra.Command{
 	$ engine config new debug tracing [µService(s)...]
 
 # All options
-	$ engine config new [debug] [tracing] [api] [hatchery:local] [hatchery:marathon] [hatchery:openstack] [hatchery:swarm] [hatchery:vsphere] [elasticsearch] [hooks] [vcs] [repositories] [migrate]
+	$ engine config new [debug] [tracing] [api] [messenger] [hatchery:local] [hatchery:marathon] [hatchery:openstack] [hatchery:swarm] [hatchery:vsphere] [elasticsearch] [hooks] [vcs] [repositories] [migrate]
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -200,6 +201,10 @@ var configNewCmd = &cobra.Command{
 
 		if conf.Hooks != nil {
 			conf.Hooks.API.Token = sharedInfraToken
+		}
+
+		if conf.Messenger != nil {
+			conf.Messenger.API.Token = sharedInfraToken
 		}
 
 		if conf.Repositories != nil {
@@ -354,6 +359,22 @@ var configCheckCmd = &cobra.Command{
 			}
 		}
 
+		if conf.ElasticSearch != nil && conf.ElasticSearch.API.HTTP.URL != "" {
+			fmt.Printf("checking elasticsearch configuration...\n")
+			if err := elasticsearch.New().CheckConfiguration(*conf.ElasticSearch); err != nil {
+				fmt.Printf("elasticsearch Configuration: %v\n", err)
+				hasError = true
+			}
+		}
+
+		if conf.Messenger != nil && conf.Messenger.API.HTTP.URL != "" {
+			fmt.Printf("checking messenger configuration...\n")
+			if err := messenger.New().CheckConfiguration(*conf.Messenger); err != nil {
+				fmt.Printf("messenger Configuration: %v\n", err)
+				hasError = true
+			}
+		}
+
 		if !hasError {
 			fmt.Println("Configuration file OK")
 		}
@@ -392,7 +413,7 @@ This component operates CDS VCS connectivity
 
 Start all of this with a single command:
 
-	$ engine start [api] [hatchery:local] [hatchery:marathon] [hatchery:openstack] [hatchery:swarm] [hatchery:vsphere] [elasticsearch] [hooks] [vcs] [repositories] [migrate]
+	$ engine start [api] [messenger] [hatchery:local] [hatchery:marathon] [hatchery:openstack] [hatchery:swarm] [hatchery:vsphere] [elasticsearch] [hooks] [vcs] [repositories] [migrate]
 
 All the services are using the same configuration file format.
 
@@ -489,6 +510,9 @@ See $ engine config command for more details.
 			case "elasticsearch":
 				services = append(services, serviceConf{arg: a, service: elasticsearch.New(), cfg: *conf.ElasticSearch})
 				names = append(names, conf.ElasticSearch.Name)
+			case "messenger":
+				services = append(services, serviceConf{arg: a, service: messenger.New(), cfg: *conf.Messenger})
+				names = append(names, conf.Messenger.Name)
 			default:
 				fmt.Printf("Error: service '%s' unknown\n", a)
 				os.Exit(1)
