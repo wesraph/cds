@@ -28,6 +28,7 @@ func projectCommands() []*cobra.Command {
 		projectGroup(),
 		projectVariable(),
 		projectPlatform(),
+		projectMetadata(),
 	}
 }
 
