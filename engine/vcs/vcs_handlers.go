@@ -962,3 +962,31 @@ func (s *Service) postRepoGrantHandler() service.Handler {
 		return nil
 	}
 }
+
+func (s *Service) getCurrentUser() service.Handler {
+	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+		name := muxVar(r, "name")
+
+		accessToken, accessTokenSecret, ok := getAccessTokens(ctx)
+		if !ok {
+			return sdk.WrapError(sdk.ErrUnauthorized, "VCS> postRepoGrantHandler> Unable to get access token headers %s %s/%s", name, owner, repo)
+		}
+
+		consumer, err := s.getConsumer(name)
+		if err != nil {
+			return sdk.WrapError(err, "VCS server unavailable %s %s/%s", name, owner, repo)
+		}
+
+		client, err := consumer.GetAuthorizedClient(ctx, accessToken, accessTokenSecret)
+		if err != nil {
+			return sdk.WrapError(err, "Unable to get authorized client %s %s/%s", name, owner, repo)
+		}
+
+		user, err := client.CurrentUser(ctx)
+		if err != nil {
+			return sdk.WrapError(err, "Unable to get current user on %s", name)
+		}
+
+		return service.WriteJSON(w, user, http.StatusOK)
+	}
+}

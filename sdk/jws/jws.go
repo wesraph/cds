@@ -9,6 +9,7 @@ import (
 	"encoding/pem"
 	"errors"
 
+	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/square/go-jose.v2"
 )
 
@@ -28,6 +29,10 @@ func ExportPublicKey(pk *rsa.PrivateKey) ([]byte, error) {
 		return nil, err
 	}
 	return buffer.Bytes(), nil
+}
+
+func NewPrivateKeyFromPEM(pk []byte) (*rsa.PrivateKey, error) {
+	return jwt.ParseRSAPrivateKeyFromPEM(pk)
 }
 
 func NewPublicKeyFromPEM(pk []byte) (*rsa.PublicKey, error) {

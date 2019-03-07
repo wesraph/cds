@@ -19,7 +19,7 @@ const (
 
 //Github const
 var (
-	requestedScope = []string{"user:email", "repo", "admin:repo_hook"} //https://developer.github.com/v3/oauth/#scopes
+	RequestedScope = []string{"user:email", "repo", "admin:repo_hook"} //https://developer.github.com/v3/oauth/#scopes
 )
 
 //AuthorizeRedirect returns the request token, the Authorize URL
@@ -35,7 +35,7 @@ func (g *githubConsumer) AuthorizeRedirect(ctx context.Context) (string, string,
 	val := url.Values{}
 	val.Add("client_id", g.ClientID)
 	//Leave the default value set in github. If we would it to be tweakable; we should do it this way: val.Add("redirect_uri", g.AuthorizationCallbackURL)
-	val.Add("scope", strings.Join(requestedScope, " "))
+	val.Add("scope", strings.Join(RequestedScope, " "))
 	val.Add("state", requestToken)
 
 	authorizeURL := fmt.Sprintf("%s/login/oauth/authorize?%s", URL, val.Encode())

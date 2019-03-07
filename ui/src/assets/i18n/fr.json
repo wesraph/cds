@@ -5,6 +5,8 @@
   "account_btn_signup": "Créer un compte",
   "account_btn_login": "Se connecter",
 
+  "account_auth_title": "Se connecter via",
+
   "account_login_btn_connect": "Connexion",
   "account_login_title": "Se connecter à CDS",
   "account_password_btn_reset": "Réinitialiser le mot de passe",

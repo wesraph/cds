@@ -38,3 +38,26 @@ func (g *githubClient) User(ctx context.Context, username string) (User, error) 
 
 	return user, nil
 }
+
+func (g *githubClient) CurrentUser(ctx context.Context) (sdk.VCSUser, error) {
+	url := "/user"
+	status, body, _, err := g.get(url)
+	if err != nil {
+		log.Warning("githubClient.User> Error %s", err)
+		return sdk.VCSUser{}, err
+	}
+	if status >= 400 {
+		return sdk.VCSUser{}, sdk.NewError(sdk.ErrRepoNotFound, errorAPI(body))
+	}
+	var user User
+	if err := json.Unmarshal(body, &user); err != nil {
+		return sdk.VCSUser{}, err
+	}
+	return sdk.VCSUser{
+		Login:     user.Login,
+		Email:     user.Email,
+		AvatarURL: user.AvatarURL,
+		MFA:       user.TwoFactorAuthentication,
+		Name:      user.Name,
+	}, nil
+}

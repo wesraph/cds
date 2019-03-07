@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/ovh/cds/sdk/jws"
 
 	"github.com/gorilla/mux"
 
@@ -75,9 +78,9 @@ func (api *API) repositoriesManagerAuthorizeHandler() service.Handler {
 			"project_key":          proj.Key,
 			"last_modified":        strconv.FormatInt(time.Now().Unix(), 10),
 			"repositories_manager": rmName,
-			"url":           url,
-			"request_token": token,
-			"username":      deprecatedGetUser(ctx).Username,
+			"url":                  url,
+			"request_token":        token,
+			"username":             deprecatedGetUser(ctx).Username,
 		}
 
 		api.Cache.Set(cache.Key("reposmanager", "oauth", token), data)
@@ -100,6 +103,33 @@ func (api *API) repositoriesManagerOAuthCallbackHandler() service.Handler {
 		state := r.FormValue("state")
 
 		data := map[string]string{}
+
+		privKey, err := jws.NewPrivateKeyFromPEM([]byte(api.Config.Auth.RSAPrivateKey))
+		if err != nil {
+			return sdk.WithStack(err)
+		}
+
+		// Workaround to handle CDS authentication properly
+		var authRequest sdk.AuthRequest
+		if err := jws.Verify(&privKey.PublicKey, state, &authRequest); err != nil {
+			log.Info("not a proper authentication request: %v", err)
+		} else {
+			// Successfull authentication, let's redirect to another handler
+			callBackURL, err := url.Parse(api.Config.URL.API)
+			if err != nil {
+				return sdk.WithStack(err)
+			}
+			callBackURL.Path += fmt.Sprintf("/login/%s/callback", authRequest.AuthProvider)
+			q := callBackURL.Query()
+
+			r.ParseForm() // nolint
+			for k := range r.Form {
+				v := r.FormValue(k)
+				q.Add(k, v)
+			}
+			callBackURL.RawQuery = q.Encode()
+			http.Redirect(w, r, callBackURL.String(), http.StatusTemporaryRedirect)
+		}
 
 		if !api.Cache.Get(cache.Key("reposmanager", "oauth", state), &data) {
 			return sdk.WrapError(sdk.ErrForbidden, "repositoriesManagerAuthorizeCallback> Error")

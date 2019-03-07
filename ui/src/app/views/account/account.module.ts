@@ -1,13 +1,15 @@
-import {NgModule} from '@angular/core';
-import {SharedModule} from '../../shared/shared.module';
-import {accountRouting} from './account.routing';
-import {LoginComponent} from './login/login.component';
-import {PasswordComponent} from './password/password.component';
-import {SignUpComponent} from './signup/signup.component';
-import {VerifyComponent} from './verify/verify.component';
+import { NgModule } from '@angular/core';
+import { SharedModule } from '../../shared/shared.module';
+import { accountRouting } from './account.routing';
+import { AuthComponent } from './auth/auth.component';
+import { LoginComponent } from './login/login.component';
+import { PasswordComponent } from './password/password.component';
+import { SignUpComponent } from './signup/signup.component';
+import { VerifyComponent } from './verify/verify.component';
 
 @NgModule({
     declarations: [
+        AuthComponent,
         LoginComponent,
         PasswordComponent,
         SignUpComponent,

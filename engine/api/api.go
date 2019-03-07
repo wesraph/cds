@@ -80,7 +80,8 @@ type Configuration struct {
 		SharedInfraToken string `toml:"sharedInfraToken" default:"" comment:"Token for shared.infra group. This value will be used when shared.infra will be created\nat first CDS launch. This token can be used by CDS CLI, Hatchery, etc...\nThis is mandatory." json:"-"`
 		RSAPrivateKey    string `toml:"rsaPrivateKey" default:"" comment:"The RSA Private Key used to sign and verify the JWT Tokens issued by the API \nThis is mandatory." json:"-"`
 		LDAP             struct {
-			Enable   bool   `toml:"enable" default:"false" json:"enable"`
+			Name     string `toml:"name" json:"name"`
+			Enabled  bool   `toml:"enabled" default:"false" json:"enabled"`
 			Host     string `toml:"host" json:"host"`
 			Port     int    `toml:"port" default:"636" json:"port"`
 			SSL      bool   `toml:"ssl" default:"true" json:"ssl"`
@@ -91,8 +92,32 @@ type Configuration struct {
 			BindPwd  string `toml:"bindPwd" default:"" comment:"Define it if ldapsearch need to be authenticated" json:"-"`
 		} `toml:"ldap" json:"ldap"`
 		Local struct {
+			Enabled              bool   `json:"enabled" toml:"enabled"`
 			SignupAllowedDomains string `toml:"signupAllowedDomains" default:"" comment:"Allow signup from selected domains only - comma separated. Example: your-domain.com,another-domain.com" commented:"true" json:"signupAllowedDomains"`
 		} `toml:"local" json:"local"`
+		CorporateSSO struct {
+			Name           string `toml:"name" json:"name"`
+			Enabled        bool   `json:"enabled" toml:"enabled"`
+			RedirectMethod string `json:"redirect_method" toml:"redirectMethod"`
+			RedirectURL    string `json:"redirect_url" toml:"redirectURL"`
+			Keys           struct {
+				RequestSigningKey  string `json:"request_signing_key" toml:"requestSigningKey"`
+				TokenSigningKey    string `json:"token_signing_key" toml:"tokenSigningKey"`
+				TokenKeySigningKey *struct {
+					KeySigningKey   string `json:"public_signing_key" toml:"publicSigningKey"`
+					SigningKeyClaim string `json:"signing_key_claim" toml:"signingKeyClaim"`
+				} `json:"key_signing_key" toml:"keySigningKey"`
+			} `json:"keys" toml:"keys"`
+			Claims struct { // TODO meh ?
+				Username     string `json:"username"`
+				SessionLevel string `json:"session_level"`
+			} `json:"claims" toml:"claims"`
+		} `json:"corporate_sso" toml:"corporateSSO"`
+		Github struct {
+			Enabled      bool   `json:"enabled" toml:"enabled"`
+			ClientID     string `toml:"clientId" json:"-" comment:"#######\n CDS <-> Github. Documentation on https://ovh.github.io/cds/hosting/repositories-manager/github/ \n#######\n Github OAuth Application Client ID"`
+			ClientSecret string `toml:"clientSecret" json:"-"  comment:"Github OAuth Application Client Secret"`
+		} `toml:"github" json:"github"`
 	} `toml:"auth" comment:"##############################\n CDS Authentication Settings#\n#############################" json:"auth"`
 	SMTP struct {
 		Disable  bool   `toml:"disable" default:"true" json:"disable"`
@@ -625,7 +650,7 @@ func (a *API) Serve(ctx context.Context) error {
 	// Initialize the auth driver
 	var authMode string
 	var authOptions interface{}
-	switch a.Config.Auth.LDAP.Enable {
+	switch a.Config.Auth.LDAP.Enabled {
 	case true:
 		authMode = "ldap"
 		authOptions = auth.LDAPConfig{

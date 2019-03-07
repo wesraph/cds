@@ -571,3 +571,12 @@ func GetPollingInfos(ctx context.Context, c sdk.VCSAuthorizedClient, prj sdk.Pro
 	}
 	return res, nil
 }
+
+func (c *vcsClient) CurrentUser(ctx context.Context) (sdk.VCSUser, error) {
+	user := sdk.VCSUser{}
+	path := fmt.Sprintf("/vcs/%s/user", c.name)
+	if _, err := c.doJSONRequest(ctx, "GET", path, nil, &user); err != nil {
+		return sdk.VCSUser{}, sdk.WithStack(err)
+	}
+	return user, nil
+}

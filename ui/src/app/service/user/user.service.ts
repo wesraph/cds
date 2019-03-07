@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators';
 import { Bookmark } from '../../model/bookmark.model';
 import { Groups } from '../../model/group.model';
 import { Token } from '../../model/token.model';
-import { User, UserLoginRequest } from '../../model/user.model';
+import { AuthenticationProvider, User, UserLoginRequest } from '../../model/user.model';
 import { AuthentificationStore } from '../auth/authentification.store';
 
 @Injectable()
@@ -142,5 +142,9 @@ export class UserService {
      */
     getBookmarks(): Observable<Bookmark[]> {
         return this._http.get<Bookmark[]>('/bookmarks');
+    }
+
+    loginRedirect(): Observable<Array<AuthenticationProvider>> {
+        return this._http.get<Array<AuthenticationProvider>>('/login/redirect');
     }
 }

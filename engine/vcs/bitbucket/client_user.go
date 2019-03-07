@@ -19,3 +19,7 @@ func (b *bitbucketClient) findByEmail(ctx context.Context, email string) (*User,
 	}
 	return nil, fmt.Errorf("User not found")
 }
+
+func (b *bitbucketClient) CurrentUser(ctx context.Context) (sdk.VCSUser, error) {
+	return sdk.VCSUser{}, fmt.Errorf("Not implemented")
+}

@@ -20,6 +20,8 @@ func (api *API) InitRouter() {
 	r := api.Router
 	r.Handle("/login", r.POST(api.loginUserHandler, Auth(false)))
 	r.Handle("/login/callback", r.POST(api.loginUserCallbackHandler, Auth(false)))
+	r.Handle("/login/redirect", r.GET(api.loginSSORedirectHandler, Auth(false)))
+	r.Handle("/login/{authProvider}/callback", r.GET(api.loginSSORedirectCallbackHandler, Auth(false)), r.POST(api.loginSSORedirectCallbackHandler, Auth(false)))
 
 	log.Info("Initializing Events broker")
 	// Initialize event broker

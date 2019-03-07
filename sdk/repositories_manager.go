@@ -143,3 +143,11 @@ type VCSCommitStatus struct {
 	State      string    `json:"state"`
 	Decription string    `json:"description"`
 }
+
+type VCSUser struct {
+	Login     string `json:"login"`
+	AvatarURL string `json:"avatar_url"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	MFA       bool   `json:"mfa"`
+}

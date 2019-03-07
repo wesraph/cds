@@ -74,6 +74,9 @@ type VCSAuthorizedClient interface {
 
 	// Permissions
 	GrantReadPermission(ctx context.Context, repo string) error
+
+	// Users
+	CurrentUser(ctx context.Context) (VCSUser, error)
 }
 
 // GetDefaultBranch return the default branch

@@ -1,0 +1,26 @@
+<div id="authComponent">
+    <img id ="logo" class="ui centered image" src="assets/images/cds.png">
+    <div class="ui two column centered grid">
+        <div class="column">
+            <h3 class="ui top block attached header">
+                {{ 'account_auth_title' | translate }}
+            </h3>
+            <div class="ui bottom attached segment">
+                <ng-container *ngFor="let authProvider of authProviders">
+                    <form class="authProvider ui segment"
+                        action="{{authProvider.redirect_url}}" 
+                        method="{{authProvider.redirect_method}}" 
+                        enctype="{{authProvider.content_type}}" #form>
+                        <ng-container *ngFor="let k of authProvider.body | keys">
+                            <input type="hidden" name="{{k}}" value="{{authProvider.body[k]}}"/>
+                        </ng-container>
+                        <button type="submit" (click)="form.submit()">
+                            <i class="big {{authProvider.icon}} icon"></i>
+                            {{authProvider.type}} <em>{{authProvider.name}}</em>
+                        </button>
+                    </form>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

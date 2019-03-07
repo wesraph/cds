@@ -1,0 +1,31 @@
+@import "../../../../common";
+
+#authComponent {
+  height: 100%;
+  padding-top: 20px;
+  background-color: $darkBackground;
+
+  #logo {
+    margin-bottom: 40px;
+  }
+
+  .left.floated.block {
+    a {
+      display: block;
+    }
+  }
+
+  .authProvider {
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      height: 100%;;
+      &:hover {
+        color: $cds_color_teal;
+      }
+    }
+  }
+}

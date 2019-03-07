@@ -1,15 +1,21 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {LoginComponent} from './login/login.component';
-import {PasswordComponent} from './password/password.component';
-import {SignUpComponent} from './signup/signup.component';
-import {VerifyComponent} from './verify/verify.component';
+import { ModuleWithProviders } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthComponent } from './auth/auth.component';
+import { LoginComponent } from './login/login.component';
+import { PasswordComponent } from './password/password.component';
+import { SignUpComponent } from './signup/signup.component';
+import { VerifyComponent } from './verify/verify.component';
 
 const routes: Routes = [
     {
         path: '',
         children : [
-            { path: '', redirectTo: 'login', pathMatch: 'full' },
+            { path: '', redirectTo: 'auth', pathMatch: 'full' },
+            {
+                path: 'auth',
+                component: AuthComponent,
+                data: { title: 'CDS • Authentication' }
+            },
             {
                 path: 'login',
                 component: LoginComponent,

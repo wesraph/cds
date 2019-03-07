@@ -17,3 +17,7 @@ export class UserLoginRequest {
 
     constructor() {}
 }
+
+export class AuthenticationProvider {
+
+}
