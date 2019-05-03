@@ -21,7 +21,7 @@ require (
 	github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/artyom/untar v0.0.0-20160228112026-02ed5a2449a6
-	github.com/aws/aws-sdk-go v1.15.57 // indirect
+	github.com/aws/aws-sdk-go v1.19.11
 	github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a // indirect
 	github.com/bgentry/speakeasy v0.0.0-20160813190634-a1ccbf2c40df
 	github.com/bitly/go-hostpool v0.0.0-20171023180738-a3a6125de932 // indirect
