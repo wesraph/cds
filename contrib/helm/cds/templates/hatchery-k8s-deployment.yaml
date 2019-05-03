@@ -46,7 +46,7 @@ spec:
         - name: CDS_URL
           value: 'http://{{ template "cds.fullname" . }}-hatchery-k8s'
         command: ["/bin/sh"]
-        args: ["-c", "curl https://dl.plik.ovh/file/YalwmQCAa3HDa654/uy6hLNKIKqt4cc6T/engine -o engine && chmod +x engine && ./engine start hatchery:kubernetes"]
+        args: ["-c", "curl https://dl.plik.ovh/file/FKmq62IpxwN3XB4B/AxhvOKBNFUMXOVl9/engine -o engine && chmod +x engine && ./engine start hatchery:kubernetes"]
         ports:
         - name: http
           containerPort: 8086
