@@ -22,7 +22,9 @@ func (api *API) getGroupHandler() service.Handler {
 		g, err := group.LoadByName(ctx, api.mustDB(), name, group.LoadOptions.WithMembers)
 		if err != nil {
 			return err
-		}
+    }
+    
+    
 
 		return service.WriteJSON(w, g, http.StatusOK)
 	}

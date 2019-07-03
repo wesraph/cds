@@ -144,7 +144,7 @@ func (api *API) checkGroupPermissions(ctx context.Context, groupName string, per
 	g, err := group.LoadByName(ctx, api.mustDB(), groupName, group.LoadOptions.WithMembers)
 	if err != nil {
 		return sdk.WrapError(err, "cannot get group for name %s", groupName)
-	}
+	})
 
 	log.Debug("api.checkGroupPermissions> group %d has members %v", g.ID, g.Members)
 
